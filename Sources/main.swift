@@ -12,12 +12,11 @@ print("GPU arch : \(device.architecture.name)")
 print("maxThreadgroupMemoryLength : \(device.maxThreadgroupMemoryLength) bytes")
 print("maxThreadsPerThreadgroup : \(device.maxThreadsPerThreadgroup)")
 
-// set the precompiled kernel path
+// get the precompiled kernel path URL
 // this assumes Swift project directory structure does not change 
 guard let exec_path = ProcessInfo.processInfo.arguments.first else {
     fatalError("Failed to retrieve exec path")
 }
-
 let exec_url = URL(fileURLWithPath: exec_path)
 let exec_root = exec_url.deletingLastPathComponent()
                         .deletingLastPathComponent()
@@ -31,7 +30,7 @@ print("Making Metal library from: \(lib_url)")
 let library = try device.makeLibrary(URL: lib_url)
 let kernel = library.makeFunction(name: "add_arrays")!
 
-// some boilerplate 
+// some boilerplate to pass the kernel 
 let command_queue = device.makeCommandQueue()!
 let command_buffer = command_queue.makeCommandBuffer()!
 let encoder = command_buffer.makeComputeCommandEncoder()!
@@ -76,4 +75,5 @@ print("Kernel finished")
 let result_pointer = buffer_c.contents();
 let result_buff_pointer = UnsafeBufferPointer(start: result_pointer.assumingMemoryBound(to: Int.self), count: N)
 let result = Array(result_buff_pointer)
+
 print("Results: \(result)")
